@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { NameListService } from '../shared/name-list/name-list.service';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
+import { jqxBarGaugeComponent } from './jqwidgets-ts/angular_jqxbargauge';
 
 /**
  * This class represents the lazy loaded HomeComponent.
@@ -10,47 +10,28 @@ import { NameListService } from '../shared/name-list/name-list.service';
   templateUrl: 'home.component.html',
   styleUrls: ['home.component.css'],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements AfterViewInit {
+    @ViewChild('barGaugeReference') myBarGauge: jqxBarGaugeComponent;
 
-  newName: string = '';
-  errorMessage: string;
-  names: any[] = [];
+    ngAfterViewInit(): void
+    {
+        this.myBarGauge.createWidget(this.barGaugeSettings);
+    }
 
-  /**
-   * Creates an instance of the HomeComponent with the injected
-   * NameListService.
-   *
-   * @param {NameListService} nameListService - The injected NameListService.
-   */
-  constructor(public nameListService: NameListService) {}
-
-  /**
-   * Get the names OnInit
-   */
-  ngOnInit() {
-    this.getNames();
-  }
-
-  /**
-   * Handle the nameListService observable
-   */
-  getNames() {
-    this.nameListService.get()
-      .subscribe(
-        names => this.names = names,
-        error => this.errorMessage = <any>error
-      );
-  }
-
-  /**
-   * Pushes a new name onto the names array
-   * @return {boolean} false to prevent default form submit behavior to refresh the page.
-   */
-  addName(): boolean {
-    // TODO: implement nameListService.post
-    this.names.push(this.newName);
-    this.newName = '';
-    return false;
-  }
-
+    barGaugeSettings: jqwidgets.BarGaugeOptions =
+    {
+        colorScheme: "scheme02",
+        width: 600,
+        height: 600,
+        max: 150,
+        values: [102, 115, 130, 137],
+        tooltip: {
+            visible: true,
+            formatFunction: (value: string) =>
+            {
+                let realVal = parseInt(value);
+                return ('Year: 2016<br />Price Index:' + realVal);
+            }
+        }
+    }
 }
