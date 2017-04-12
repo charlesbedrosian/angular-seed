@@ -11,8 +11,6 @@ export class ProjectConfig extends SeedConfig {
 
   PROJECT_TASKS_DIR = join(process.cwd(), this.TOOLS_DIR, 'tasks', 'project');
 
-
-
   constructor() {
     super();
     // this.APP_TITLE = 'Put name of your app here';
@@ -44,19 +42,11 @@ export class ProjectConfig extends SeedConfig {
       //{'node_modules/immutable/dist/immutable.js': [ 'Map' ]},
     ];
 
-
-    // this is how it is defined in tools/config/seed.config.ts but leaving
-    // this here to indicate how to change it to false
-    this.SYSTEM_CONFIG.defaultJSExtensions = true;
-
     // Add packages (e.g. ng2-translate)
     let additionalPackages: ExtendPackages[] = [{
       name: 'angular_jqxscheduler',
       // Path to the package's bundle
-      path: 'node_modules/jqwidgets-framework/jqwidgets-ts/angular_jqxscheduler',
-      packageMeta:{
-        defaultExtension: 'ts'
-      }
+      path: 'node_modules/jqwidgets-framework/jqwidgets/jqxscheduler.js'
     }];
 
     this.addPackagesBundles(additionalPackages);
