@@ -133,3 +133,15 @@ npm install tsd -g
 
 tsd install --save jqwidgets-framework
 ```
+
+---
+Also tried to explicitly put path like ../../../../node_modules/... for the module import but it was still trying to download the .js file of the module.  I believe the systemjs.config is putting "default extension" as js
+
+[SystemJS issue - An option to load modules from node_module](https://github.com/systemjs/systemjs/issues/767)
+
+
+---
+Running demos on server
+Uploaded the contents of demos to web server and can run.  Interestingly without the `jqwidgets-ts` folder it complained it could not find `angular_jqxscheduler.ts` whereas when I was running inside of angular seed it would not find `angular_jqxscheduler.js`
+
+[Scheduler demo](http://scheduler.bedrosian.com/angular-scheduler/angular-scheduler-defaultfunctionality.htm)
