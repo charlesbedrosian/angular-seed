@@ -1,6 +1,6 @@
 # Steps for integrating JQWidgets into an Angular Seed project
 
-Setup the base angular seed project
+### Setup the base angular seed project
 
 ```bash
 git clone --depth 1 https://github.com/mgechev/angular-seed.git
@@ -12,132 +12,249 @@ npm start
 ```
 
 
+### manually transpile the jqwidgets-ts
+- download and expand the source of jqwidgets
+- create `tsconfig.json` in the expanded folder
 
-Start integrating JQWidgets. Basing this process on the code defined in [the guide](http://www.jqwidgets.com/angular-components-documentation/) (section titled _"Ahead Of Time" Compilation using Webpack_)
+```json
+{
+    "compilerOptions": {
+        "emitDecoratorMetadata": true,
+        "module": "commonjs",
+        "target": "ES5",
+        "outDir": "jqwidgets-ts-dist",
+        "rootDir": "jqwidgets-ts"
+    }
+}
+```
 
-```bash
-npm install --save jqwidgets-framework
+- ensure tsc is installed
 
 ```
-create `src/client/app/typings.d.ts`
+npm install -g typescript
+```
+
+- transpile
+
+```
+cd jqwidgets-ts
+tsc
+```
+- copy transpiled files
+
+```
+cd ..
+cp -r jqwidgets-ts-dist/* /path/to/angular-seed/src/client/lib/
+```
+
+
+### update project.config.ts
+
+```
+    this.NPM_DEPENDENCIES = [
+      ...this.NPM_DEPENDENCIES,
+    {src: 'jqwidgets-framework/jqwidgets/jqxcore.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxbuttons.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxscrollbar.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxdata.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxdate.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxscheduler.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxscheduler.api.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxdatetimeinput.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxmenu.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxcalendar.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxtooltip.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxwindow.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxcheckbox.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxlistbox.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxdropdownlist.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxnumberinput.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxradiobutton.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxinput.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/globalization/globalize.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/globalization/globalize.culture.de-DE.js', inject: 'libs'}
+
+    ];
+    
+...
+    let additionalPackages: ExtendPackages[] = [{
+      name: 'jqxscheduler',
+      // Path to the package's bundle
+      path: `${this.APP_SRC}/lib/jqwidgets-ts-dist/angular_jqxscheduler.js`
+    }];
+
+    this.addPackagesBundles(additionalPackages);
+    
+
+```
+
+
+
+create `src/client/app/typings.d.ts`. (not sure if this is necessary)
 
 ```typescript
 /// <reference path="../../../node_modules/jqwidgets-framework/jqwidgets-ts/jqwidgets.d.ts" />
 ```
 
-pull the required js files
-(temporarily hard code them in index.html)
+update home/home.module.ts
 
 ```
 ...
-<!-- these really should get injected but for now keep it simple -->
-    <script src="node_modules/jqwidgets-framework/jqwidgets/jqxcore.js"></script>
-    <script src="node_modules/jqwidgets-framework/jqwidgets/jqxdraw.js"></script>
-    <script src="node_modules/jqwidgets-framework/jqwidgets/jqxbargauge.js"></script>
+import { jqxSchedulerComponent } from 'jqxscheduler';x
 
-  <!-- libs:js -->
-  <!-- endinject -->
-...  
-```
-
-update `app/src/client/home.component.html` -- replace its contents with:
+@NgModule({
+...
+  declarations: [..., jqxSchedulerComponent],
+...
+})
 
 ```
-<jqxBarGauge #barGaugeReference></jqxBarGauge>
-```
 
-update imports and class in `app/src/client/home.component.ts`
+update home/home.component.ts
 
 ```
 import { Component, ViewChild, AfterViewInit } from '@angular/core';
-import { jqxBarGaugeComponent } from './jqwidgets-ts/angular_jqxbargauge';
-...
+import { jqxSchedulerComponent } from 'jqxscheduler';
+
+/**
+ * This class represents the lazy loaded HomeComponent.
+ */
+@Component({
+  moduleId: module.id,
+  selector: 'sd-home',
+  templateUrl: 'home.component.html',
+  styleUrls: ['home.component.css'],
+})
 export class HomeComponent implements AfterViewInit {
-    @ViewChild('barGaugeReference') myBarGauge: jqxBarGaugeComponent;
+
+    @ViewChild('schedulerReference') scheduler: jqxSchedulerComponent;
 
     ngAfterViewInit(): void
     {
-        this.myBarGauge.createWidget(this.barGaugeSettings);
+        setTimeout(() =>
+        {
+            this.scheduler.ensureAppointmentVisible('id1');
+        });
     }
 
-    barGaugeSettings: jqwidgets.BarGaugeOptions =
+    generateAppointments(): any
     {
-        colorScheme: "scheme02",
-        width: 600,
-        height: 600,
-        max: 150,
-        values: [102, 115, 130, 137],
-        tooltip: {
-            visible: true,
-            formatFunction: (value: string) =>
-            {
-                let realVal = parseInt(value);
-                return ('Year: 2016<br />Price Index:' + realVal);
-            }
-        }
+        let appointments = new Array();
+
+        let appointment1 = {
+            id: "id1",
+            description: "George brings projector for presentations.",
+            location: "",
+            subject: "Quarterly Project Review Meeting",
+            calendar: "Room 1",
+            start: new Date(2016, 10, 23, 9, 0, 0),
+            end: new Date(2016, 10, 23, 16, 0, 0)
+        };
+        let appointment2 = {
+            id: "id2",
+            description: "",
+            location: "",
+            subject: "IT Group Mtg.",
+            calendar: "Room 2",
+            start: new Date(2016, 10, 24, 10, 0, 0),
+            end: new Date(2016, 10, 24, 15, 0, 0)
+        };
+        let appointment3 = {
+            id: "id3",
+            description: "",
+            location: "",
+            subject: "Course Social Media",
+            calendar: "Room 3",
+            start: new Date(2016, 10, 27, 11, 0, 0),
+            end: new Date(2016, 10, 27, 13, 0, 0)
+        };
+        let appointment4 = {
+            id: "id4",
+            description: "",
+            location: "",
+            subject: "New Projects Planning",
+            calendar: "Room 2",
+            start: new Date(2016, 10, 23, 16, 0, 0),
+            end: new Date(2016, 10, 23, 18, 0, 0)
+        };
+        let appointment5 = {
+            id: "id5",
+            description: "",
+            location: "",
+            subject: "Interview with James",
+            calendar: "Room 1",
+            start: new Date(2016, 10, 25, 15, 0, 0),
+            end: new Date(2016, 10, 25, 17, 0, 0)
+        };
+        let appointment6 = {
+            id: "id6",
+            description: "",
+            location: "",
+            subject: "Interview with Nancy",
+            calendar: "Room 4",
+            start: new Date(2016, 10, 26, 14, 0, 0),
+            end: new Date(2016, 10, 26, 16, 0, 0)
+        };
+
+        appointments.push(appointment1);
+        appointments.push(appointment2);
+        appointments.push(appointment3);
+        appointments.push(appointment4);
+        appointments.push(appointment5);
+        appointments.push(appointment6);
+
+        return appointments;
     }
+
+    source: any =
+    {
+        dataType: "array",
+        dataFields: [
+            { name: 'id', type: 'string' },
+            { name: 'description', type: 'string' },
+            { name: 'location', type: 'string' },
+            { name: 'subject', type: 'string' },
+            { name: 'calendar', type: 'string' },
+            { name: 'start', type: 'date' },
+            { name: 'end', type: 'date' }
+        ],
+        id: 'id',
+        localData: this.generateAppointments()
+    }
+
+    dataAdapter: any = new $.jqx.dataAdapter(this.source);
+
+    date: any = new $.jqx.date(2016, 11, 23);
+
+    appointmentDataFields: any =
+    {
+        from: "start",
+        to: "end",
+        id: "id",
+        description: "description",
+        location: "location",
+        subject: "subject",
+        resourceId: "calendar"
+    };
+
+    resources: any =
+    {
+        colorScheme: "scheme05",
+        dataField: "calendar",
+        source: new $.jqx.dataAdapter(this.source)
+    };
+
+    views: string[] =
+    [
+        'dayView',
+        'weekView',
+        'monthView'
+    ];
+
 }
 
 ```
 
-update `app/src/client/home/home.module.ts`
-
-
-``` 
-import { jqxSchedulerComponent } from 'angular_jqxscheduler';
- 
- @NgModule({
- imports: [HomeRoutingModule, SharedModule, jqxSchedulerComponent],
-```
-
-## Issues
-
-1) duplicate definitions:
-
-```
-/Users/charles/code/angular-seed/node_modules/jqwidgets-framework/jqwidgets-ts/jqwidgets.d.ts(1979,9): error TS2300: Duplicate identifier 'localization'.
-/Users/charles/code/angular-seed/node_modules/jqwidgets-framework/jqwidgets-ts/jqwidgets.d.ts(2004,9): error TS2300: Duplicate identifier 'localization'.
-/Users/charles/code/angular-seed/node_modules/jqwidgets-framework/jqwidgets-ts/jqwidgets.d.ts(2004,9): error TS2403: Subsequent variable declarations must have the same type.  Variable 'localization' must be of type 'any', but here has type 'Object'.
-src/client/app/home/home.component.ts(2,38): error TS2307: Cannot find module './jqwidgets-ts/angular_jqxbargauge'.
-```
-
-2) in js console shows 404s for javascript files
-
-```
-
-Failed to load resource: the server responded with a status of 404 (Not Found)
-localhost/:66 (SystemJS) XHR error (404 Not Found) loading http://localhost:5556/app/home/jqwidgets-ts/angular_jqxbargauge.js
-	Error: XHR error (404 Not Found) loading http://localhost:5556/app/home/jqwidgets-ts/angular_jqxbargauge.js
-	    at XMLHttpRequest.wrapFn [as __zone_symbol___onreadystatechange] (http://localhost:5556/node_modules/zone.js/dist/zone.js?1491952822971:1199:29) [<root>]
-	    at Zone.runTask (http://localhost:5556/node_modules/zone.js/dist/zone.js?1491952822971:165:47) [<root> => <root>]
-	    at XMLHttpRequest.ZoneTask.invoke (http://localhost:5556/node_modules/zone.js/dist/zone.js?1491952822971:460:38) [<root>]
-	Error loading http://localhost:5556/app/home/jqwidgets-ts/angular_jqxbargauge.js as "./jqwidgets-ts/angular_jqxbargauge" from http://localhost:5556/app/home/home.component.js Not expecting this error? Report it at https://github.com/mgechev/angular-seed/issues
-(anonymous) @ localhost/:66
-
-```
-
------
-### Things I tried that did not have an effect
-
-References:
-
-- [Using 3rd party JavaScript libraries such as moment.js](https://github.com/mgechev/angular-seed/issues/393)
-- [Add external scripts and styles](https://github.com/mgechev/angular-seed/wiki/Add-external-scripts-and-styles)
-
-
-
-
-```
-# install tsd if you do not have it
-npm install tsd -g
-
-tsd install --save jqwidgets-framework
-```
-
----
-Also tried to explicitly put path like ../../../../node_modules/... for the module import but it was still trying to download the .js file of the module.  I believe the systemjs.config is putting "default extension" as js
-
-[SystemJS issue - An option to load modules from node_module](https://github.com/systemjs/systemjs/issues/767)
 
 
 ---

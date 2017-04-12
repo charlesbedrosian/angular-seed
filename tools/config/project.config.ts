@@ -11,6 +11,8 @@ export class ProjectConfig extends SeedConfig {
 
   PROJECT_TASKS_DIR = join(process.cwd(), this.TOOLS_DIR, 'tasks', 'project');
 
+
+
   constructor() {
     super();
     // this.APP_TITLE = 'Put name of your app here';
@@ -24,6 +26,27 @@ export class ProjectConfig extends SeedConfig {
       ...this.NPM_DEPENDENCIES,
       // {src: 'jquery/dist/jquery.min.js', inject: 'libs'},
       // {src: 'lodash/lodash.min.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxcore.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxbuttons.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxscrollbar.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxdata.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxdate.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxscheduler.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxscheduler.api.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxdatetimeinput.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxmenu.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxcalendar.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxtooltip.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxwindow.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxcheckbox.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxlistbox.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxdropdownlist.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxnumberinput.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxradiobutton.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/jqxinput.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/globalization/globalize.js', inject: 'libs'},
+    {src: 'jqwidgets-framework/jqwidgets/globalization/globalize.culture.de-DE.js', inject: 'libs'}
+
     ];
 
     // Add `local` third-party libraries to be injected/bundled.
@@ -42,11 +65,16 @@ export class ProjectConfig extends SeedConfig {
       //{'node_modules/immutable/dist/immutable.js': [ 'Map' ]},
     ];
 
+
+    // this is how it is defined in tools/config/seed.config.ts but leaving
+    // this here to indicate how to change it to false
+    this.SYSTEM_CONFIG.defaultJSExtensions = true;
+
     // Add packages (e.g. ng2-translate)
     let additionalPackages: ExtendPackages[] = [{
-      name: 'angular_jqxscheduler',
+      name: 'jqxscheduler',
       // Path to the package's bundle
-      path: 'node_modules/jqwidgets-framework/jqwidgets/jqxscheduler.js'
+      path: `${this.APP_SRC}/lib/jqwidgets-ts-dist/angular_jqxscheduler.js`
     }];
 
     this.addPackagesBundles(additionalPackages);

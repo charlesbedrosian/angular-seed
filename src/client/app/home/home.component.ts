@@ -1,6 +1,5 @@
 import { Component, ViewChild, AfterViewInit } from '@angular/core';
-//import { jqxSchedulerComponent } from '../../../../node_modules/jqwidgets-framework/jqwidgets-ts/angular_jqxscheduler';
-import { jqxSchedulerComponent } from 'angular_jqxscheduler';
+import { jqxSchedulerComponent } from 'jqxscheduler';
 
 /**
  * This class represents the lazy loaded HomeComponent.
